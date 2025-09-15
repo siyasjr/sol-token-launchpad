@@ -65,6 +65,12 @@ async function createToken(){
 
   );
 
+  transaction.feePayer = wallet.publicKey;
+  transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+  transaction.partialSign(mintKeypair);
+
+
+
 
 
 
