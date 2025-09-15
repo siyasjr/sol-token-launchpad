@@ -69,6 +69,19 @@ async function createToken(){
   transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
   transaction.partialSign(mintKeypair);
 
+  await wallet.sendTransaction(transaction, connection);
+
+  console.log(`Token mint created at ${mintKeypair.publicKey.toBase58()}`);
+  const associatedToken = getAssociatedTokenAddressSync(
+  mintKeypair.publicKey,
+  wallet.publicKey,
+  false,
+  TOKEN_2022_PROGRAM_ID,
+  );
+
+  console.log(associatedToken.toBase58());
+
+
 
 
 
