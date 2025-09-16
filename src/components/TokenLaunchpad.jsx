@@ -19,7 +19,6 @@ import {
 } from "@solana/spl-token-metadata"
 
 export function TokenLaunchpad() {
-
   const { connection } = useConnection()
   const wallet = useWallet()
 
@@ -29,7 +28,7 @@ export function TokenLaunchpad() {
   const [uri, setUri] = useState("")
   const [supply, setSupply] = useState("")
 
-    async function createToken() {
+  async function createToken() {
     if (!wallet.publicKey) {
       alert("Connect your wallet first")
       return
@@ -50,7 +49,6 @@ export function TokenLaunchpad() {
     const lamports = await connection.getMinimumBalanceForRentExemption(
       mintLen + metadataLen
     )
-    
 
     // Transaction 1: create + init mint + metadata
     const transaction = new Transaction().add(
@@ -132,8 +130,6 @@ export function TokenLaunchpad() {
 
     console.log("✅ Minted initial supply!")
   }
-
-  
 
   return (
     <div
