@@ -43,7 +43,7 @@ export function TokenLaunchpad() {
       uri,
       additionalMetadata: [],
     }
-    
+
     // calculate size
     const mintLen = getMintLen([ExtensionType.MetadataPointer])
     const metadataLen = TYPE_SIZE + LENGTH_SIZE + pack(metadata).length
@@ -51,7 +51,89 @@ export function TokenLaunchpad() {
       mintLen + metadataLen
     )
     
+
+    // Transaction 1: create + init mint + metadata
+    const transaction = new Transaction().add(
+      SystemProgram.createAccount({
+        fromPubkey: wallet.publicKey,
+        newAccountPubkey: mintKeypair.publicKey,
+        space: mintLen,
+        lamports,
+        programId: TOKEN_2022_PROGRAM_ID,
+      }),
+      createInitializeMetadataPointerInstruction(
+        mintKeypair.publicKey,
+        wallet.publicKey,
+        mintKeypair.publicKey,
+        TOKEN_2022_PROGRAM_ID
+      ),
+      createInitializeMintInstruction(
+        mintKeypair.publicKey,
+        9, // decimals
+        wallet.publicKey,
+        null,
+        TOKEN_2022_PROGRAM_ID
+      ),
+      createInitializeInstruction({
+        programId: TOKEN_2022_PROGRAM_ID,
+        mint: mintKeypair.publicKey,
+        metadata: mintKeypair.publicKey,
+        name: metadata.name,
+        symbol: metadata.symbol,
+        uri: metadata.uri,
+        mintAuthority: wallet.publicKey,
+        updateAuthority: wallet.publicKey,
+      })
+    )
+
+    transaction.feePayer = wallet.publicKey
+    transaction.recentBlockhash = (
+      await connection.getLatestBlockhash()
+    ).blockhash
+    transaction.partialSign(mintKeypair)
+
+    await wallet.sendTransaction(transaction, connection)
+
+    console.log(`✅ Token mint created at ${mintKeypair.publicKey.toBase58()}`)
+
+    // Associated token account
+    const associatedToken = getAssociatedTokenAddressSync(
+      mintKeypair.publicKey,
+      wallet.publicKey,
+      false,
+      TOKEN_2022_PROGRAM_ID
+    )
+
+    const transaction2 = new Transaction().add(
+      createAssociatedTokenAccountInstruction(
+        wallet.publicKey,
+        associatedToken,
+        wallet.publicKey,
+        mintKeypair.publicKey,
+        TOKEN_2022_PROGRAM_ID
+      )
+    )
+    await wallet.sendTransaction(transaction2, connection)
+
+    // Mint supply (convert human supply → raw units with decimals=9)
+    const baseUnits = BigInt(supply) * 10n ** 9n
+
+    const transaction3 = new Transaction().add(
+      createMintToInstruction(
+        mintKeypair.publicKey,
+        associatedToken,
+        wallet.publicKey,
+        baseUnits,
+        [],
+        TOKEN_2022_PROGRAM_ID
+      )
+    )
+    await wallet.sendTransaction(transaction3, connection)
+
+    console.log("✅ Minted initial supply!")
   }
+
+  
 
   return (
     <div
