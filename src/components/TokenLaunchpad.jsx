@@ -29,6 +29,23 @@ export function TokenLaunchpad() {
   const [uri, setUri] = useState("")
   const [supply, setSupply] = useState("")
 
+    async function createToken() {
+    if (!wallet.publicKey) {
+      alert("Connect your wallet first")
+      return
+    }
+
+    const mintKeypair = Keypair.generate()
+    const metadata = {
+      mint: mintKeypair.publicKey,
+      name,
+      symbol,
+      uri,
+      additionalMetadata: [],
+    }
+
+    
+  }
 
   return (
     <div
@@ -75,7 +92,7 @@ export function TokenLaunchpad() {
         onChange={(e) => setSupply(e.target.value)}
       />
 
-      <button className="btn">
+      <button onClick={createToken} className="btn">
         Create Token
       </button>
     </div>
