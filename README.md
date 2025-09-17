@@ -60,7 +60,11 @@ Initialize metadata (name, symbol, URI)
 
 Create an associated token account
 
-Mint the initial supply to your walle
+Mint the initial supply to your wallet
+
+
+# Flow of Accounts : 
+![App Screenshot](assets/flowofaccounts.png)
 
 
 ## License
@@ -71,3 +75,6 @@ MIT License. Free to use and modify.
 ## Contributing
 
 Pull requests are welcome! If you’d like to improve this project (UI, functionality, docs), feel free to fork and submit a PR.
+
+
+
